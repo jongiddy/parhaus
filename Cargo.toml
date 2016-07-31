@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Jonathan Giddy <jongiddy@gmail.com>"]
 
 [dependencies]
+env_logger = "*"
+hyper = { git = "https://github.com/hyperium/hyper" }
+num_cpus = "*"
