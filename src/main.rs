@@ -3,15 +3,18 @@ extern crate hyper;
 extern crate env_logger;
 extern crate num_cpus;
 
-use hyper::{Decoder, Encoder, Next, HttpStream};
+use hyper::{Control, Decoder, Encoder, Next, HttpStream};
 use hyper::server::{Server, Handler, Request, Response, HttpListener};
 
 static PHRASE: &'static [u8] = b"Hello World!";
 
-struct Hello;
+struct RequestRouter {
+	control: Control,
+}
 
-impl Handler<HttpStream> for Hello {
+impl Handler<HttpStream> for RequestRouter {
     fn on_request(&mut self, _: Request<HttpStream>) -> Next {
+    	let _ = self.control; // prevent unused field error
         Next::write()
     }
     fn on_request_readable(&mut self, _: &mut Decoder<HttpStream>) -> Next {
@@ -39,7 +42,7 @@ fn main() {
         let listener = listener.try_clone().unwrap();
         handles.push(::std::thread::spawn(move || {
             Server::new(listener)
-                .handle(|_| Hello).unwrap();
+                .handle(|ctrl| RequestRouter{control: ctrl}).unwrap();
         }));
     }
     println!("Listening on http://127.0.0.1:3000");
